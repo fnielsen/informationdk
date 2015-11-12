@@ -3,6 +3,9 @@
 Usage:
   api.py <id>
 
+Example:
+  python -m informationdk.api 537425
+
 """
 
 from __future__ import division, print_function
@@ -30,6 +33,8 @@ class Article(object):
         """Extract elements from article HTML."""
         self.authors = self.extract_authors()
         self.body = self.extract_body()
+        self.datetime = self.extract_datetime()
+        self.description = self.extract_description()
         self.title = self.extract_title()
 
     def extract_authors(self):
@@ -43,6 +48,17 @@ class Article(object):
         element = self.tree.xpath("//div[@class='field field-name-body']")[0]
         return " ".join([text for text in element.itertext()])
 
+    def extract_datetime(self):
+        """Extract publication time."""
+        match = '//meta[@property="article:published_time"]'
+        element = self.tree.xpath(match)[0]
+        return element.attrib['content']
+
+    def extract_description(self):
+        """Extract publication time."""
+        element = self.tree.xpath('//meta[@name="description"]')[0]
+        return element.attrib['content']
+
     def extract_title(self):
         """Extract article title from HTML."""
         return [text for text in self.tree.xpath("//h1")[0].itertext()][0]
@@ -51,6 +67,8 @@ class Article(object):
         """Convert object to dict."""
         return {
             'authors': self.authors,
+            'datetime': self.datetime,
+            'description': self.description,
             'title': self.title,
             'body': self.body
         }
